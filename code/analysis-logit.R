@@ -1,3 +1,7 @@
+# ############
+# Model 1 
+# Ratings and local characteristics
+# ############
 library(ggplot2)
 library(tibble)
 library(rio)

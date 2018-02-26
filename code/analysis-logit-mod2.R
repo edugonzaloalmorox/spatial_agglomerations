@@ -1,3 +1,9 @@
+# ############
+# Model 2
+# Ratings and local characteristics
+# ############
+
+
 library(ggplot2)
 library(tibble)
 library(rio)
@@ -10,7 +16,8 @@ library(lmerTest)
 library(lme4)
 library(tidyverse)
 
-clean_schools = import("data/processed/clean_schools_v2.csv")
+clean_schools2 = import("data/processed/clean_schools_v2.csv") %>% 
+  filter(from_id %in% unique(clean_schools$from_id))
 
 
 clean_schools = clean_schools %>%

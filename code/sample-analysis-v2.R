@@ -1,6 +1,7 @@
 ############################
 # Prepare sample of analysis 
 # Information based on each restaurant in an education premise that has a takeaway around 1.5 km or less
+# Running model 2 - Ratings and neighbouring ratings
 # February 2018 
 # @EduGonzalo
 ##################################
