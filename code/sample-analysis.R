@@ -1,6 +1,7 @@
 ############################
 # Prepare sample of analysis 
 # Information based on each restaurant in an education premise that has a takeaway around 1.5 km or less
+# Running model 1 - Ratings and local characteristics
 # February 2018 
 # @EduGonzalo
 ##################################
@@ -121,10 +122,6 @@ clean_schools = clean_schools %>%
 
 
 write.csv(clean_schools, "data/processed/clean_schools.csv", row.names = FALSE)
-
-
-clean_schools =  import("data/processed/clean_schools.csv")
-
 
 # create dummies
  clean_schools<- cbind(clean_schools,
@@ -534,49 +531,49 @@ clean_schools = test_schools_beta_v2 %>%
 
 # lump categories 5,4, other
 
-clean_schools = clean_schools %>%
-  filter(!from_rating %in% c("AwaitingInspection", "Exempt")) %>% 
-  mutate_at(vars(from_rating), funs(as.factor)) %>%
-  mutate(rating_recoded= ifelse(!from_rating %in% c("4", "5"), "3", from_rating ))
+    clean_schools = clean_schools %>%
+      filter(!from_rating %in% c("AwaitingInspection", "Exempt")) %>% 
+      mutate_at(vars(from_rating), funs(as.factor)) %>%
+      mutate(rating_recoded= ifelse(!from_rating %in% c("4", "5"), "3", from_rating ))
+    
+    
+    clean_schools = clean_schools %>%
+      dplyr::mutate(rating_recoded= recode(rating_recoded, `5`= "rating_5",
+                                           `4`= "rating_4", 
+                                           `3`= "rating_3"))
+    
+    
+    write.csv(clean_schools, "data/processed/clean_schools_1km.csv", row.names = FALSE)
+    
+    
+    clean_schools =  import("data/processed/clean_schools_1km.csv")
 
 
-clean_schools = clean_schools %>%
-  dplyr::mutate(rating_recoded= recode(rating_recoded, `5`= "rating_5",
-                                       `4`= "rating_4", 
-                                       `3`= "rating_3"))
-
-
-write.csv(clean_schools, "data/processed/clean_schools_1km.csv", row.names = FALSE)
-
-
-clean_schools =  import("data/processed/clean_schools_1km.csv")
-
-
-# create dummies
+# create dummies for categorical variable
 library(dummies)
-clean_schools<- cbind(clean_schools,
-                      dummy(clean_schools$rating_recoded, sep = "_"))
-
-
-
-names(clean_schools) = gsub("clean_schools_rating", "rating", names(clean_schools))
-
-
-clean_schools<- cbind(clean_schools,
-                      dummy(clean_schools$region, sep = "_"))
-
-names(clean_schools) = gsub("clean_schools", "region", names(clean_schools))
-
-
-
-# complete NAs
-clean_schools = clean_schools %>% complete(from_id, fill = list(n_asian = 0, 
-                                                                n_chicken = 0, 
-                                                                n_fish = 0, 
-                                                                n_kebab = 0, 
-                                                                n_other = 0, 
-                                                                n_pizza = 0, 
-                                                                n_sandwich = 0))
+      clean_schools<- cbind(clean_schools,
+                            dummy(clean_schools$rating_recoded, sep = "_"))
+      
+      
+      
+      names(clean_schools) = gsub("clean_schools_rating", "rating", names(clean_schools))
+      
+      
+      clean_schools<- cbind(clean_schools,
+                            dummy(clean_schools$region, sep = "_"))
+      
+      names(clean_schools) = gsub("clean_schools", "region", names(clean_schools))
+      
+      
+      
+      # complete NAs
+      clean_schools = clean_schools %>% complete(from_id, fill = list(n_asian = 0, 
+                                                                      n_chicken = 0, 
+                                                                      n_fish = 0, 
+                                                                      n_kebab = 0, 
+                                                                      n_other = 0, 
+                                                                      n_pizza = 0, 
+                                                                      n_sandwich = 0))
 
 clean_schools = clean_schools %>%
   mutate(prop_asian = n_asian/n_takeaways,
@@ -590,5 +587,26 @@ clean_schools = clean_schools %>%
 
 write.csv(clean_schools, "data/processed/clean_schools_1km.csv", row.names = FALSE)
 
+#########################
+# Link population data
+# #####################
 
-    
+population = import("data/processed/population.csv")
+
+
+      clean_schools_1km_test = left_join(clean_schools_1km, population, by = c("oslaua_from" = "oslaua"))
+      
+      clean_schools_1_5km_test = left_join(clean_schools_1_5km, population, by = c("oslaua_from" = "oslaua")) 
+      
+      clean_schools_5km_test = left_join(clean_schools_5km, population, by = c("oslaua_from" = "oslaua"))
+      
+      clean_schools_25km_test = left_join(clean_schools_25km, population, by = c("oslaua_from" = "oslaua")) 
+
+write.csv(clean_schools_1km_beta, "data/processed/clean_schools_1km.csv", row.names = FALSE)
+write.csv(clean_schools_1_5km_beta, "data/processed/clean_schools_1_5km.csv", row.names = FALSE)
+write.csv(clean_schools_5km_beta, "data/processed/clean_schools_500m.csv", row.names = FALSE)
+
+
+
+
+
